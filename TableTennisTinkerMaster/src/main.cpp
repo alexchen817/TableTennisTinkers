@@ -9,14 +9,24 @@ const int downButton = 12;
 const int rightButton = 14;
 const int leftButton = 27;
 
-uint8_t reciever_mac[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+uint8_t slaveMacAddr[] = {0x94, 0xE6, 0x86, 0x3B, 0x6F, 0xF8};
 
 typedef struct {
   uint8_t upState;
   uint8_t downState;
   uint8_t rightState;
   uint8_t leftState;
-} payload;
+} Payload;
+
+Payload payload;
+
+esp_now_peer_info_t slaveInfo;
+
+// function callback when data is sent
+void onDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
+  Serial.print("\r\nLast Packet Send Status:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+}
 
 void setup() {
   // intiailize 4 buttons 
@@ -27,32 +37,44 @@ void setup() {
   pinMode(leftButton, INPUT_PULLUP);
   
   // init comms for master-slave communication 
-  WiFi.mode(WIFI_MODE_STA);
-  WiFi.disconnect();
-  ESPNow.init();
-  ESPNow.add_peer(reciever_mac);
+  // wifi on standby mode 
+  WiFi.mode(WIFI_STA);
+
+  // init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error: Initialization ESP-NOW FAILED");
+    return;
+  }
+  // register callback function 
+  // this is so we can track packet success/failure 
+  esp_now_register_send_cb(esp_now_send_cb_t(onDataSent));
+
+  // register slave
+  memcpy(slaveInfo.peer_addr, slaveMacAddr, 6);
+  slaveInfo.channel = 0;
+  slaveInfo.encrypt = false;
+
+  // add peer 
+  if (esp_now_add_peer(&slaveInfo) != ESP_OK) {
+    Serial.println("Failed to add slave");
+    return;
+  }
 }
 
 void loop() {
-//   // read the button state
-//   // not pressed down = 0
-//   // pressed = 1
-//   int upState = !digitalRead(upButton);
-//   int downState = !digitalRead(downButton);
-//   int rightState = !digitalRead(rightButton);
-//   int leftState = !digitalRead(leftButton);
-//   Serial.print("Up Button: ");
-//   Serial.println(upState);
-//   Serial.print("Down Button: ");
-//   Serial.println(downState);
-//   Serial.print("right Button: ");
-//   Serial.println(rightState);
-//   Serial.print("left Button: ");
-//   Serial.println(leftState);
+  // Serial.print("ESP32 BOARD MAC ADDRESS: ");
+  // Serial.println(WiFi.macAddress());
+  payload.downState = 1;
+  payload.leftState = 1;
+  payload.rightState = 1;
+  payload.upState = 1;
+  esp_err_t packet = esp_now_send(slaveMacAddr, (uint8_t * ) &payload, sizeof(payload));
 
-//   // avoid wasting resources 
-//   delay(100);
+  if (packet == ESP_OK) {
+    Serial.println("Sent with success");
+  } else {
+    Serial.println("Error sending data");
+  }
 
-  Serial.print("ESP32 BOARD MAC ADDRESS: ");
-  Serial.println(WiFi.macAddress());
+  delay(200);
 }
