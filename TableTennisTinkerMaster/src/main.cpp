@@ -2,14 +2,17 @@
 #include <esp_now.h>
 #include <esp_wifi.h>
 #include <WiFi.h>
-#include "ESPNowW.h"
+
 
 const int upButton = 13;
 const int downButton = 12;
 const int rightButton = 14;
 const int leftButton = 27;
+// old slave mac address dont erase pls in case it revives!!!
+// uint8_t slaveMacAddr[] = {0x94, 0xE6, 0x86, 0x3B, 0x6F, 0xF8};
 
-uint8_t slaveMacAddr[] = {0x94, 0xE6, 0x86, 0x3B, 0x6F, 0xF8};
+// ESP WROVER MAC ADDRESS 
+uint8_t slaveMacAddr[] = {0xEC, 0xC9, 0xFF, 0xCD, 0x62, 0xCC};
 
 typedef struct {
   uint8_t upState;
@@ -64,10 +67,12 @@ void setup() {
 void loop() {
   // Serial.print("ESP32 BOARD MAC ADDRESS: ");
   // Serial.println(WiFi.macAddress());
-  payload.downState = 1;
-  payload.leftState = 1;
-  payload.rightState = 1;
-  payload.upState = 1;
+
+  // send input 
+  payload.upState = !digitalRead(upButton);
+  payload.downState = !digitalRead(downButton);
+  payload.leftState = !digitalRead(leftButton);
+  payload.rightState = !digitalRead(rightButton);
   esp_err_t packet = esp_now_send(slaveMacAddr, (uint8_t * ) &payload, sizeof(payload));
 
   if (packet == ESP_OK) {
@@ -76,5 +81,5 @@ void loop() {
     Serial.println("Error sending data");
   }
 
-  delay(200);
+  delay(500);
 }
