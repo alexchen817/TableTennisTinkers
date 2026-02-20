@@ -11,7 +11,7 @@ typedef struct payload {
 
 Payload payload;
 
-void onDataRecv(const uint8_t *recv_info, const uint8_t *incomingData, int len) {
+void onDataRecv(const esp_now_recv_info_t *recv_info, const uint8_t *incomingData, int len) {
   memcpy(&payload, incomingData, sizeof(payload));
   Serial.print("Bytes received: ");
   Serial.println(len);
@@ -19,10 +19,10 @@ void onDataRecv(const uint8_t *recv_info, const uint8_t *incomingData, int len) 
   Serial.println(payload.upState);
   Serial.print("down state: ");
   Serial.println(payload.downState);
-  Serial.print("right state: ");
-  Serial.println(payload.rightState);
   Serial.print("left state: ");
   Serial.println(payload.leftState);
+  Serial.print("right state: ");
+  Serial.println(payload.rightState);
   Serial.println();
 }
 
@@ -41,5 +41,5 @@ void setup() {
 }
 
 void loop() {
-    delay(200);
+
 }
