@@ -11,6 +11,7 @@ typedef struct payload {
   uint8_t downState;
   uint8_t rightState;
   uint8_t leftState;
+  uint8_t indexerState;
 } Payload;
 
 Payload payload;
@@ -42,6 +43,8 @@ void onDataRecv(const esp_now_recv_info *recv_info, const uint8_t *incomingData,
   Serial.println(payload.leftState);
   Serial.print("right state: ");
   Serial.println(payload.rightState);
+  Serial.print("indexer State: ");
+  Serial.println(payload.indexerState);
   Serial.println();
 }
 
@@ -73,7 +76,7 @@ void setup() {
 }
 
 void loop() {
-  // first check if two buttons are press at the same time
+  // first check if two buttons are pressed at the same time
   if (payload.upState && payload.downState) {
     // since loop() is a function within an implicit while(true)
     return;
@@ -128,6 +131,8 @@ void loop() {
     // update the time the motor moved at 
     YawServo.lastMoveTime = currentTime;
   }
+
+
   // calling delay() will block all background processes to do with
   // ESP-NOW wifi coms, DO NOT WRITE DELAY HERE
 }
