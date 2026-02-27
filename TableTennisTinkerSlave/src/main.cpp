@@ -4,7 +4,7 @@
 #include <ESP32Servo.h>
 
 const int MAX_DEGREES = 175;
-  const int WAIT_TIME = 100;
+const int WAIT_TIME = 100;
 
 typedef struct payload {
   uint8_t upState;
@@ -92,14 +92,14 @@ void loop() {
         // hit 180 degree limit, stop
         return;
       } else {
-        PitchServo.currentAngle += 10; 
+        PitchServo.currentAngle += 3; 
       }
       PitchServo.servo.write(PitchServo.currentAngle);
     } else if (payload.downState) {
       if (PitchServo.currentAngle <= 0) {
         return;
       } else {
-        PitchServo.currentAngle -= 10;
+        PitchServo.currentAngle -= 3;
       }
       PitchServo.servo.write(PitchServo.currentAngle);
     }
@@ -114,14 +114,14 @@ void loop() {
         // hit 180 degree limit, stop
         return;
       } else {
-        YawServo.currentAngle += 10; 
+        YawServo.currentAngle += 3; 
       }
       YawServo.servo.write(YawServo.currentAngle);
     } else if (payload.leftState) {
       if (YawServo.currentAngle <= 0) {
         return;
       } else {
-        YawServo.currentAngle -= 10;
+        YawServo.currentAngle -= 3;
       }
       YawServo.servo.write(YawServo.currentAngle);
     }
