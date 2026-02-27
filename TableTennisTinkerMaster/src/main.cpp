@@ -2,12 +2,14 @@
 #include <esp_now.h>
 #include <esp_wifi.h>
 #include <WiFi.h>
-
+#include <ESP32Servo.h>
 
 const int upButton = 13;
 const int downButton = 12;
 const int rightButton = 14;
 const int leftButton = 27;
+const int indexerButton = 26;
+
 // old slave mac address dont erase pls in case it revives!!!
 // uint8_t slaveMacAddr[] = {0x94, 0xE6, 0x86, 0x3B, 0x6F, 0xF8};
 
@@ -19,6 +21,7 @@ typedef struct {
   uint8_t downState;
   uint8_t rightState;
   uint8_t leftState;
+  uint8_t indexerState;
 } Payload;
 
 Payload payload;
@@ -38,7 +41,7 @@ void setup() {
   pinMode(downButton, INPUT_PULLUP);
   pinMode(rightButton, INPUT_PULLUP);
   pinMode(leftButton, INPUT_PULLUP);
-  
+  pinMode(indexerButton, INPUT_PULLUP);
   // init comms for master-slave communication 
   // wifi on standby mode 
   WiFi.mode(WIFI_STA);
@@ -73,6 +76,7 @@ void loop() {
   payload.downState = !digitalRead(downButton);
   payload.leftState = !digitalRead(leftButton);
   payload.rightState = !digitalRead(rightButton);
+  payload.indexerState = !digitalRead(indexerButton);
   esp_err_t packet = esp_now_send(slaveMacAddr, (uint8_t * ) &payload, sizeof(payload));
 
   if (packet == ESP_OK) {
@@ -80,6 +84,5 @@ void loop() {
   } else {
     Serial.println("Error sending data");
   }
-
-  delay(500);
+  delay(250);
 }
