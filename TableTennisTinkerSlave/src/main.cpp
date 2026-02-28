@@ -8,6 +8,13 @@ const int WAIT_TIME_MSEC = 100;
 const int INDEXER_WAIT_TIME_MSEC = 5000;
 const int NUM_CHUTES = 4;
 const int INDEXER_START_POS_DEG = 32;
+const int AIN1 = 25;
+const int AIN2 = 33;
+const int BIN1 = 26;
+const int BIN2 = 27;
+const int PWMA = 14;
+const int PWMB = 32;
+const int STBY = 18;
 typedef struct payload {
   uint8_t upState;
   uint8_t downState;
@@ -53,44 +60,55 @@ void onDataRecv(const esp_now_recv_info *recv_info, const uint8_t *incomingData,
 
 void setup() {
   Serial.begin(115200);
-  // set device as wifi station 
   WiFi.mode(WIFI_STA);
-
-  // init ESP-NOW
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
-    return;
-  }
-
+  if (esp_now_init() != ESP_OK) return;
   esp_now_register_recv_cb(onDataRecv);
-  // wait for connection
-  delay(1000);
-  // servo setup
-  PitchServo.pin = 18;
-  // pulse width range (500-2500)
-  PitchServo.servo.attach(PitchServo.pin, 500, 2500);
-  PitchServo.waitTime = WAIT_TIME_MSEC;
-  PitchServo.lastMoveTime = 0;
-  PitchServo.currentAngle = 10;
-  PitchServo.servo.write(PitchServo.currentAngle);
-  YawServo.pin = 19;
-  YawServo.servo.attach(YawServo.pin, 700, 2500);
-  YawServo.waitTime = WAIT_TIME_MSEC;
-  YawServo.lastMoveTime = 0;
-  YawServo.currentAngle = 100;
-  YawServo.servo.write(YawServo.currentAngle);
 
-  IndexerServo.pin = 21;
-  IndexerServo.waitTime = INDEXER_WAIT_TIME_MSEC;
-  IndexerServo.lastMoveTime = 0;
-  IndexerServo.currentAngle = INDEXER_START_POS_DEG;
-  IndexerServo.servo.write(IndexerServo.currentAngle);
-  IndexerServo.servo.attach(IndexerServo.pin, 500, 2400);
+  // --- 1. PIN MODES ---
+  pinMode(STBY, OUTPUT);
+  pinMode(AIN1, OUTPUT); pinMode(AIN2, OUTPUT);
+  pinMode(BIN1, OUTPUT); pinMode(BIN2, OUTPUT);
+
+  // --- 2. TIMER ALLOCATION ---
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  ESP32PWM::allocateTimer(3);
+
+  // --- 3. SERVO SETUP ---
+  PitchServo.servo.setPeriodHertz(50);
+  PitchServo.servo.attach(22, 500, 2500); 
+  YawServo.servo.setPeriodHertz(50);
+  YawServo.servo.attach(23, 700, 2500);
+  IndexerServo.servo.setPeriodHertz(50);
+  IndexerServo.servo.attach(4, 500, 2400);
+
+  // --- 4. DC MOTOR SETUP ---
+  ledcAttachChannel(PWMA, 4000, 8, 8); 
+  ledcAttachChannel(PWMB, 4000, 8, 9); 
+
+  // --- 5. POWER ON SEQUENCE
+  digitalWrite(STBY, HIGH); // Wake up the chip
+  
+  // Set Direction for Motor A
+  digitalWrite(AIN1, HIGH);
+  digitalWrite(AIN2, LOW);
+  
+  // Set Direction for Motor B
+  digitalWrite(BIN1, HIGH);
+  digitalWrite(BIN2, LOW);
+
+  // Set initial speed (0-255)
+  ledcWrite(PWMA, 255); 
+  ledcWrite(PWMB, 255);
+
 }
 
 int indexerPos = 0;
 bool lastIndexerState = false;
+bool motorsStarted = false;
 void loop() {
+
   // first check if two buttons are pressed at the same time
   if (payload.upState && payload.downState) {
     // since loop() is a function within an implicit while(true)
