@@ -28,7 +28,7 @@ Payload payload;
 // -----------
 // SERVO STRUCT 
 // -----------
-struct ServoState {
+struct ServoState { 
   Servo servo;
   int pin;
   int currentAngle; // current angle pos. 
@@ -64,31 +64,44 @@ void setup() {
   if (esp_now_init() != ESP_OK) return;
   esp_now_register_recv_cb(onDataRecv);
 
-  // --- 1. PIN MODES ---
+  // motor driver pinmodes 
   pinMode(STBY, OUTPUT);
-  pinMode(AIN1, OUTPUT); pinMode(AIN2, OUTPUT);
-  pinMode(BIN1, OUTPUT); pinMode(BIN2, OUTPUT);
+  pinMode(AIN1, OUTPUT); 
+  pinMode(AIN2, OUTPUT);
+  pinMode(BIN1, OUTPUT); 
+  pinMode(BIN2, OUTPUT);
 
-  // --- 2. TIMER ALLOCATION ---
+  // allocate timers so that the servos don't interfere
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
   ESP32PWM::allocateTimer(2);
   ESP32PWM::allocateTimer(3);
 
-  // --- 3. SERVO SETUP ---
+  // setup servos
   PitchServo.servo.setPeriodHertz(50);
-  PitchServo.servo.attach(22, 500, 2500); 
+  // (PIN,MIN MU, MAX MU)
+  PitchServo.servo.attach(19, 500, 2500); 
+  PitchServo.lastMoveTime = 0;
+  PitchServo.currentAngle = 10;
+  PitchServo.servo.write(PitchServo.currentAngle);
+
   YawServo.servo.setPeriodHertz(50);
   YawServo.servo.attach(23, 700, 2500);
+  YawServo.waitTime = WAIT_TIME_MSEC;
+  YawServo.lastMoveTime = 0;
+  YawServo.currentAngle = 100;
+
   IndexerServo.servo.setPeriodHertz(50);
   IndexerServo.servo.attach(4, 500, 2400);
-
-  // --- 4. DC MOTOR SETUP ---
+  IndexerServo.waitTime = INDEXER_WAIT_TIME_MSEC;
+  IndexerServo.lastMoveTime = 0;
+  IndexerServo.currentAngle = INDEXER_START_POS_DEG;
+  // dc motor setup
   ledcAttachChannel(PWMA, 4000, 8, 8); 
   ledcAttachChannel(PWMB, 4000, 8, 9); 
 
-  // --- 5. POWER ON SEQUENCE
-  digitalWrite(STBY, HIGH); // Wake up the chip
+  // wake up the standby chip on the motor driver
+  digitalWrite(STBY, HIGH); 
   
   // Set Direction for Motor A
   digitalWrite(AIN1, HIGH);
@@ -101,7 +114,6 @@ void setup() {
   // Set initial speed (0-255)
   ledcWrite(PWMA, 255); 
   ledcWrite(PWMB, 255);
-
 }
 
 int indexerPos = 0;
