@@ -13,7 +13,7 @@ const int indexerButton = 26;
 // old slave mac address dont erase pls in case it revives!!!
 // uint8_t slaveMacAddr[] = {0x94, 0xE6, 0x86, 0x3B, 0x6F, 0xF8};
 
-// ESP WROVER MAC ADDRESS 
+// SLAVE ESP ADDRESS
 uint8_t slaveMacAddr[] = {0x94, 0xE6, 0x86, 0x3B, 0x5D, 0x9C};
 
 typedef struct {
