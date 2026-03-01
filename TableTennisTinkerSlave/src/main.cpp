@@ -71,11 +71,10 @@ void setup() {
   pinMode(BIN1, OUTPUT); 
   pinMode(BIN2, OUTPUT);
 
-  // allocate timers so that the servos don't interfere
+  // allocate timers for each component that has PWM control for servos
+  // ESP32PWM is part of the servo.h api
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
-  ESP32PWM::allocateTimer(2);
-  ESP32PWM::allocateTimer(3);
 
   // setup servos
   PitchServo.servo.setPeriodHertz(50);
@@ -83,6 +82,7 @@ void setup() {
   PitchServo.servo.attach(19, 500, 2500); 
   PitchServo.lastMoveTime = 0;
   PitchServo.currentAngle = 10;
+  PitchServo.waitTime = WAIT_TIME_MSEC;
   PitchServo.servo.write(PitchServo.currentAngle);
 
   YawServo.servo.setPeriodHertz(50);
@@ -97,8 +97,8 @@ void setup() {
   IndexerServo.lastMoveTime = 0;
   IndexerServo.currentAngle = INDEXER_START_POS_DEG;
   // dc motor setup
-  ledcAttachChannel(PWMA, 4000, 8, 8); 
-  ledcAttachChannel(PWMB, 4000, 8, 9); 
+  ledcAttachChannel(PWMA, 4000, 8, 4); 
+  ledcAttachChannel(PWMB, 4000, 8, 5); 
 
   // wake up the standby chip on the motor driver
   digitalWrite(STBY, HIGH); 
