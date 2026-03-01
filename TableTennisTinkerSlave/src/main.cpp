@@ -118,7 +118,6 @@ void setup() {
 
 int indexerPos = 0;
 bool lastIndexerState = false;
-bool motorsStarted = false;
 void loop() {
 
   // first check if two buttons are pressed at the same time
