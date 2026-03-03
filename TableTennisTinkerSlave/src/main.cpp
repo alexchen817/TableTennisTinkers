@@ -84,20 +84,20 @@ void setup() {
   // setup servos
   PitchServo.servo.setPeriodHertz(50);
   // (PIN,MIN MU, MAX MU)
-  PitchServo.servo.attach(19, 500, 2500); 
+  PitchServo.servo.attach(PITCH_PIN, 500, 2500); 
   PitchServo.lastMoveTime = 0;
   PitchServo.currentAngle = 10;
   PitchServo.waitTime = WAIT_TIME_MSEC;
   PitchServo.servo.write(PitchServo.currentAngle);
 
   YawServo.servo.setPeriodHertz(50);
-  YawServo.servo.attach(23, 700, 2500);
+  YawServo.servo.attach(YAW_PIN, 700, 2500);
   YawServo.waitTime = WAIT_TIME_MSEC;
   YawServo.lastMoveTime = 0;
   YawServo.currentAngle = 100;
 
   IndexerServo.servo.setPeriodHertz(50);
-  IndexerServo.servo.attach(4, 500, 2400);
+  IndexerServo.servo.attach(INDEXER_PIN, 500, 2400);
   IndexerServo.waitTime = INDEXER_WAIT_TIME_MSEC;
   IndexerServo.lastMoveTime = 0;
   IndexerServo.currentAngle = INDEXER_START_POS_DEG;
