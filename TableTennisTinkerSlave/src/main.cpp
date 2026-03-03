@@ -8,13 +8,18 @@ const int WAIT_TIME_MSEC = 100;
 const int INDEXER_WAIT_TIME_MSEC = 5000;
 const int NUM_CHUTES = 4;
 const int INDEXER_START_POS_DEG = 32;
-const int AIN1 = 25;
-const int AIN2 = 33;
-const int BIN1 = 26;
-const int BIN2 = 27;
+
+const int AIN1 = 5;
+const int AIN2 = 17;
+const int BIN1 = 16;
+const int BIN2 = 2;
 const int PWMA = 14;
-const int PWMB = 32;
+const int PWMB = 15;
 const int STBY = 18;
+const int PITCH_PIN = 21;
+const int YAW_PIN = 22;
+const int INDEXER_PIN = 4;
+
 typedef struct payload {
   uint8_t upState;
   uint8_t downState;
