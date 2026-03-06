@@ -16,9 +16,9 @@ const int BIN2 = 2;
 const int PWMA = 14;
 const int PWMB = 15;
 const int STBY = 18;
-const int PITCH_PIN = 21;
-const int YAW_PIN = 22;
-const int INDEXER_PIN = 4;
+const int PITCH_PIN = 21; // green
+const int YAW_PIN = 22; // orange 
+const int INDEXER_PIN = 4; // black 
 
 typedef struct payload {
   uint8_t upState;
